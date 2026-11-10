@@ -179,7 +179,7 @@ function AuthPage({ onSuccess }) {
         <form onSubmit={submit} className="auth-form">
           <label>Email<input type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
           <label>Password<PasswordField mode={mode} value={password} onChange={(event) => setPassword(event.target.value)} /></label>
-          {mode === 'register' && <label>Referral code (optional)<input type="text" inputMode="numeric" placeholder="Friend’s code" value={referralCode} onChange={(event) => setReferralCode(event.target.value)} /></label>}
+          {mode === 'register' && <label>Referral code (optional)<input type="text" placeholder="Friend’s code" value={referralCode} onChange={(event) => setReferralCode(event.target.value)} /></label>}
           {error && <div className="form-error" role="alert">{error}</div>}
           <button className="primary-button auth-submit" disabled={busy}>{busy ? 'Please wait…' : mode === 'register' ? 'Create account' : 'Sign in'}</button>
         </form>

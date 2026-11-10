@@ -125,16 +125,14 @@ app.post('/api/auth/register', asyncHandler(async (request, response) => {
 
   let referrerId = null;
   if (referralCode) {
-    if (!/^\d+$/.test(referralCode) || !Number.isSafeInteger(Number(referralCode))) {
-      return response.status(400).json({ error: 'That referral code is not valid.' });
-    }
-    referrerId = Number(referralCode);
+    referrerId = referralCode;
     const { data: referrer, error } = await supabase.from('users').select('id').eq('id', referrerId).maybeSingle();
     if (error) throw error;
     if (!referrer) return response.status(400).json({ error: 'That referral code is not valid.' });
   }
 
   const { data: user, error } = await supabase.from('users').insert({
+    id: randomUUID(),
     email,
     password_hash: bcrypt.hashSync(password, 12),
     referrer_id: referrerId,
@@ -254,6 +252,7 @@ app.post('/api/deposits', authenticate, asyncHandler(async (request, response) =
 
   const reference = `TP-${randomUUID()}`;
   const { error: insertError } = await supabase.from('airtel_transactions').insert({
+    id: randomUUID(),
     user_id: request.user.id,
     phone: localPhone,
     amount,
