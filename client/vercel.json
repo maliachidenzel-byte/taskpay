@@ -1,3 +1,6 @@
 {
   "installCommand": "rm -rf node_modules && npm install && npm install @rollup/rollup-linux-x64-gnu @esbuild/linux-x64 --save-dev"
 }   
+{
+  "installCommand": "rm -rf node_modules && npm install --include=optional && npm install @rollup/rollup-linux-x64-gnu @esbuild/linux-x64 lightningcss-linux-x64-gnu --save-dev"
+}   
