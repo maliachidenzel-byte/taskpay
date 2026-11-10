@@ -25,7 +25,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    api('/me')
+    api('/api/me')
       .then(({ user: currentUser }) => setUser(currentUser))
       .catch(() => {
         localStorage.removeItem('rewards-token');
@@ -41,7 +41,7 @@ function App() {
   };
 
   const refreshUser = async () => {
-    const result = await api('/me');
+    const result = await api('/api/me');
     setUser(result.user);
   };
 
@@ -156,7 +156,8 @@ function AuthPage({ onSuccess }) {
     setBusy(true);
     setError('');
     try {
-      const { token, user } = await api(`/auth/${mode}`, {
+      const authPath = mode === 'register' ? '/api/auth/register' : '/api/auth/login';
+      const { token, user } = await api(authPath, {
         method: 'POST',
         body: JSON.stringify({ email, password, ...(mode === 'register' && referralCode.trim() ? { referralCode: referralCode.trim() } : {}) }),
       });
@@ -200,10 +201,10 @@ function Dashboard({ user, onNavigate, onRefresh, onNotice }) {
   const [error, setError] = useState('');
   const [depositOpen, setDepositOpen] = useState(false);
   useEffect(() => {
-    api('/dashboard')
+    api('/api/dashboard')
       .then(async (data) => {
         setSummary(data);
-        const { notifications } = await api('/referrals/notifications/claim', { method: 'POST' });
+        const { notifications } = await api('/api/referrals/notifications/claim', { method: 'POST' });
         if (notifications.length) {
           onNotice(notifications.map(({ amount }) => `You earned KES ${Number(amount).toLocaleString()} from a referral deposit!`).join(' '));
         }
@@ -213,7 +214,7 @@ function Dashboard({ user, onNavigate, onRefresh, onNotice }) {
 
   const refreshDashboard = async () => {
     await onRefresh();
-    setSummary(await api('/dashboard'));
+    setSummary(await api('/api/dashboard'));
   };
 
   return (
@@ -253,7 +254,7 @@ function DepositForm({ onComplete, onUpdate, onNotice }) {
     setBusy(true);
     setError('');
     try {
-      const result = await api('/deposits', { method: 'POST', body: JSON.stringify({ amount: Number(amount), phone }) });
+      const result = await api('/api/deposits', { method: 'POST', body: JSON.stringify({ amount: Number(amount), phone }) });
       setReference(result.reference);
       setStatus(result.status);
       onUpdate();
@@ -272,7 +273,7 @@ function DepositForm({ onComplete, onUpdate, onNotice }) {
     try {
       do {
         try {
-          const result = await api(`/deposits/${encodeURIComponent(reference)}/status`);
+          const result = await api(`/api/deposits/${encodeURIComponent(reference)}/status`);
           if (result.status === 'SUCCESS') {
             setStatus('SUCCESS');
             setError('');
@@ -375,7 +376,7 @@ function DashboardExtras({ summary, user, onError, onNotice }) {
 function TasksPage({ onRefresh, onNotice }) {
   const [tasks, setTasks] = useState(null);
   const [error, setError] = useState('');
-  useEffect(() => { api('/tasks').then(({ tasks: items }) => setTasks(items)).catch((problem) => setError(problem.message)); }, []);
+  useEffect(() => { api('/api/tasks').then(({ tasks: items }) => setTasks(items)).catch((problem) => setError(problem.message)); }, []);
 
   return (
     <div className="page-content">
@@ -399,7 +400,7 @@ function TaskList({ tasks, onRefresh, onNotice }) {
     setBusy(true);
     setError('');
     try {
-      await api(`/tasks/${task.id}/complete`, { method: 'POST' });
+      await api(`/api/tasks/${task.id}/complete`, { method: 'POST' });
       setItems((current) => current.map((item) => item.id === task.id ? { ...item, completedToday: true } : item));
       setActiveTask(null);
       setWatched(0);
@@ -477,16 +478,16 @@ function RedeemPage({ user, onRefresh, onNotice }) {
   const redeemable = Math.floor(available / 100) * 100;
   const amount = (Math.min(points, redeemable) / 100) * 0.5;
 
-  useEffect(() => { api('/payouts').then(({ payouts: items }) => setPayouts(items)).catch((problem) => setError(problem.message)); }, []);
+  useEffect(() => { api('/api/payouts').then(({ payouts: items }) => setPayouts(items)).catch((problem) => setError(problem.message)); }, []);
   useEffect(() => { if (redeemable > 0) setPoints((value) => Math.min(Math.max(100, value), redeemable)); }, [redeemable]);
 
   const request = async () => {
     setBusy(true);
     setError('');
     try {
-      await api('/payouts', { method: 'POST', body: JSON.stringify({ points }) });
+      await api('/api/payouts', { method: 'POST', body: JSON.stringify({ points }) });
       await onRefresh();
-      const { payouts: items } = await api('/payouts');
+      const { payouts: items } = await api('/api/payouts');
       setPayouts(items);
       onNotice(`${money(amount)} payout request sent.`);
     } catch (problem) {
@@ -528,7 +529,7 @@ function RedeemPage({ user, onRefresh, onNotice }) {
 function AdminPage() {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
-  useEffect(() => { api('/admin').then(setData).catch((problem) => setError(problem.message)); }, []);
+  useEffect(() => { api('/api/admin').then(setData).catch((problem) => setError(problem.message)); }, []);
 
   return (
     <div className="page-content">

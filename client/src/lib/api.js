@@ -1,6 +1,6 @@
 const api = async (path, options = {}) => {
   const token = localStorage.getItem('rewards-token');
-  const response = await fetch(`/api${path}`, {
+  const response = await fetch(path, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
