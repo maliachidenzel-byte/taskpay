@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'node:crypto';
@@ -28,6 +29,7 @@ const unwrap = ({ data, error }) => {
   return data;
 };
 
+app.use(cors());
 app.use(express.json({ limit: '20kb' }));
 app.use('/api', (request, response, next) => {
   if (!isSupabaseConfigured) {
